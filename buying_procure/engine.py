@@ -34,19 +34,9 @@ class ERPNextBuyingProcureEngine:
     """Procurement RFQ comparison, Purchase Order generation, and Landed Cost Valuation."""
 
     def compare_supplier_quotations(self, quotes: List[SupplierQuoteItem]) -> SupplierQuoteItem:
-        """Ranks supplier quotes by total landed cost and lead time, picking the optimal supplier."""
-        # Score = (1 / Landed Cost) * 0.7 + (1 / Lead Time) * 0.3
-        best_quote = None
-        best_composite_score = -1.0
+        """Selects optimal supplier quote based on lowest landed cost and shortest lead time."""
+        return min(quotes, key=lambda q: (q.unit_price * (1.0 + (q.tax_pct / 100.0)), q.lead_time_days))
 
-        for q in quotes:
-            effective_unit_cost = q.unit_price * (1.0 + (q.tax_pct / 100.0))
-            score = (1000.0 / effective_unit_cost) * 0.7 + (100.0 / max(1, q.lead_time_days)) * 0.3
-            if score > best_composite_score:
-                best_composite_score = score
-                best_quote = q
-
-        return best_quote
 
     def compute_landed_item_valuation(
         self,
